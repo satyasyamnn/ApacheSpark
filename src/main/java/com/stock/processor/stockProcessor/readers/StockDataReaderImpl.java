@@ -2,10 +2,16 @@ package com.stock.processor.stockProcessor.readers;
 
 import com.stock.processor.stockProcessor.configuration.ApplicationConfiguration;
 import com.stock.processor.stockProcessor.models.Stock;
+import org.apache.commons.io.FileUtils;
 import org.apache.spark.sql.*;
 import scala.collection.JavaConverters;
 import scala.collection.Seq;
 
+import java.io.File;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
@@ -13,8 +19,8 @@ import java.util.Map;
 
 public class StockDataReaderImpl implements StockDataReader{
 
-    private ApplicationConfiguration config;
-    private SQLContext sqlContext;
+    private final ApplicationConfiguration config;
+    private final SQLContext sqlContext;
 
     public StockDataReaderImpl(ApplicationConfiguration config, SQLContext sqlContext) {
         this.config = config;
@@ -24,8 +30,7 @@ public class StockDataReaderImpl implements StockDataReader{
     @Override
     public Dataset<Row> readRawStockData() {
         String filesToRead = config.getInputPath() + "/*." + config.getInputFileFormat();
-        Dataset<Row> data = sqlContext.read().format(config.getInputFileFormat()).options(getOptions()).load(filesToRead);
-        return data;
+        return  sqlContext.read().format(config.getInputFileFormat()).options(getOptions()).load(filesToRead);
     }
 
     @Override
@@ -34,14 +39,18 @@ public class StockDataReaderImpl implements StockDataReader{
         newDataSet = alterColumnNames(newDataSet);
         newDataSet = addCustomColumns(newDataSet);
         Encoder<Stock> encoder = Encoders.bean(Stock.class);
-        Dataset<Stock> stocks = newDataSet.as(encoder);
-        return stocks;
+        return newDataSet.as(encoder);
     }
 
     @Override
-    public void processStockData(Dataset<Stock> dataSet) {
-        dataSet.printSchema();
-        dataSet.show(5);
+    public void processStockData(Dataset<Stock> dataSet) throws IOException {
+        String pathToSave = config.getOutputPath() +"/" + "stockProcessing";
+        Path path = Paths.get(pathToSave);
+        if (Files.isDirectory(path)) {
+            File file = new File(pathToSave);
+            FileUtils.deleteDirectory(file);
+        }
+        dataSet.write().parquet(pathToSave);
     }
 
     private Map<String, String> getOptions() {

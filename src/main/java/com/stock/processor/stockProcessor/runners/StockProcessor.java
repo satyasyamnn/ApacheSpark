@@ -13,7 +13,7 @@ import org.springframework.stereotype.Component;
 public class StockProcessor implements ApplicationRunner {
 
     @Autowired
-    private StockDataReader stockDataReader;
+    private final StockDataReader stockDataReader;
 
     public StockProcessor(StockDataReader stockDataReader) {
         this.stockDataReader = stockDataReader;
