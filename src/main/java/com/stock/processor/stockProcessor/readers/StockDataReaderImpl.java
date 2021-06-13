@@ -46,11 +46,7 @@ public class StockDataReaderImpl implements StockDataReader{
     public void processStockData(Dataset<Stock> dataSet) throws IOException {
         String pathToSave = config.getOutputPath() +"/" + "stockProcessing";
         Path path = Paths.get(pathToSave);
-        if (Files.isDirectory(path)) {
-            File file = new File(pathToSave);
-            FileUtils.deleteDirectory(file);
-        }
-        dataSet.write().parquet(pathToSave);
+        dataSet.write().mode(SaveMode.Overwrite).parquet(pathToSave);
     }
 
     private Map<String, String> getOptions() {

@@ -1,7 +1,6 @@
 package com.stock.processor.stockProcessor.configuration;
 
-import lombok.Getter;
-import lombok.Setter;
+import lombok.*;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.stereotype.Component;
 
