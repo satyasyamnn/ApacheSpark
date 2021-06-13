@@ -7,6 +7,7 @@ import org.apache.spark.SparkConf;
 import org.apache.spark.SparkContext;
 import org.apache.spark.sql.SQLContext;
 import org.apache.spark.sql.SparkSession;
+import org.apache.spark.sql.api.java.UDF1;
 import org.apache.spark.sql.api.java.UDF2;
 import org.apache.spark.sql.types.DataTypes;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -14,6 +15,8 @@ import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
+
+import java.io.File;
 
 @ComponentScan({"com.stock.processor.*"})
 @SpringBootApplication
@@ -47,6 +50,11 @@ public class StockProcessorApplication {
 	public SQLContext sqlContext() {
 		SQLContext sqlContext = new SQLContext(sparkSession());
 		sqlContext.udf().register("spread", (UDF2<Double, Double, Double>) (value1, value2) -> value1 - value2 , DataTypes.DoubleType);
+		sqlContext.udf().register("filename", (UDF1<String, String>) (input) -> {
+		    File file = new File(input);
+			String fileName =  file.getName();
+			return fileName.substring(0, fileName.lastIndexOf("."));
+		}, DataTypes.StringType);
 		return sqlContext;
 	}
 }

@@ -7,6 +7,7 @@ import java.io.Serializable;
 @Setter
 public class Stock implements Serializable {
     private String pricingDate;
+    private String stockName;
     private Double openPrice;
     private Double highPrice;
     private Double lowPrice;

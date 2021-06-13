@@ -12,10 +12,9 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
+
+import static org.apache.spark.sql.functions.input_file_name;
 
 public class StockDataReaderImpl implements StockDataReader{
 
@@ -30,7 +29,9 @@ public class StockDataReaderImpl implements StockDataReader{
     @Override
     public Dataset<Row> readRawStockData() {
         String filesToRead = config.getInputPath() + "/*." + config.getInputFileFormat();
-        return  sqlContext.read().format(config.getInputFileFormat()).options(getOptions()).load(filesToRead);
+        Dataset<Row> data = sqlContext.read().format(config.getInputFileFormat()).options(getOptions()).load(filesToRead);
+        data = data.withColumn("stockName", functions.callUDF("filename", input_file_name()));
+        return data;
     }
 
     @Override
@@ -45,8 +46,12 @@ public class StockDataReaderImpl implements StockDataReader{
     @Override
     public void processStockData(Dataset<Stock> dataSet) throws IOException {
         String pathToSave = config.getOutputPath() +"/" + "stockProcessing";
-        Path path = Paths.get(pathToSave);
-        dataSet.write().mode(SaveMode.Overwrite).parquet(pathToSave);
+        List<Column> partitionBy = new ArrayList<>();
+        partitionBy.add(new Column("pricingDate"));
+        partitionBy.add(new Column("stockName"));
+        Seq<Column> columns = JavaConverters.collectionAsScalaIterableConverter(partitionBy).asScala().toSeq();
+        dataSet.repartition(columns).write().partitionBy("pricingDate").mode(SaveMode.Overwrite).parquet(pathToSave);
+        dataSet.show(10);
     }
 
     private Map<String, String> getOptions() {
