@@ -12,6 +12,7 @@ import org.apache.spark.sql.SparkSession;
 import org.apache.spark.sql.api.java.UDF1;
 import org.apache.spark.sql.api.java.UDF2;
 import org.apache.spark.sql.types.DataTypes;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
@@ -19,6 +20,9 @@ import java.io.File;
 
 @Configuration
 public class ContainerConfiguration {
+
+    @Autowired
+    public DatabaseConfiguration dbConfig;
 
     @Bean
     public StockProcessor stockProcessor(StockDataReader stockDataReader, StockDataWriter stockDataWriter) {
@@ -32,7 +36,7 @@ public class ContainerConfiguration {
 
     @Bean
     public StockDataWriter stockDataWriter(ApplicationConfiguration config) {
-        return new StockDataWriterImpl(config);
+        return new StockDataWriterImpl(config, dbConfig);
     }
 
     @Bean

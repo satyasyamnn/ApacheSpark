@@ -5,4 +5,6 @@ import org.apache.spark.sql.Dataset;
 
 public interface StockDataWriter {
     void processStockData(Dataset<Stock> dataSet);
+
+    void saveToPersistentStore(Dataset<Stock> dataSet);
 }

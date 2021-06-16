@@ -8,7 +8,6 @@ import org.springframework.boot.context.properties.EnableConfigurationProperties
 @SpringBootApplication
 @EnableConfigurationProperties(ApplicationConfiguration.class)
 public class StockProcessorApplication {
-
     public static void main(String[] args) {
         SpringApplication.run(StockProcessorApplication.class, args);
     }

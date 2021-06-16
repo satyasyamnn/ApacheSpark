@@ -18,5 +18,6 @@ public class StockProcessor implements ApplicationRunner {
     public void run(ApplicationArguments args) {
         Dataset<Stock> data = stockDataReader.readRawStockData();
         stockDataWriter.processStockData(data);
+        stockDataWriter.saveToPersistentStore(data);
     }
 }
