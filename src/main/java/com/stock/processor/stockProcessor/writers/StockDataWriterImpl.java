@@ -15,8 +15,6 @@ public class StockDataWriterImpl implements StockDataWriter {
 
     @Override
     public void processStockData(Dataset<Stock> dataSet) {
-        String pathToSave = config.getOutputPath() +"/" + "stockProcessing";
-        dataSet.write().mode(SaveMode.Overwrite).parquet(pathToSave);
+        dataSet.write().mode(SaveMode.Overwrite).parquet(config.getOutputPath());
     }
-
 }

@@ -13,7 +13,7 @@ import java.util.Map;
 
 import static org.apache.spark.sql.functions.input_file_name;
 
-public class StockDataReaderImpl implements StockDataReader{
+public class StockDataReaderImpl implements StockDataReader {
 
     private final ApplicationConfiguration config;
     private final SQLContext sqlContext;
@@ -37,7 +37,7 @@ public class StockDataReaderImpl implements StockDataReader{
     }
 
     private Dataset<Stock> encodeToStockDataColumns(Dataset<Row> dataSet) {
-        Dataset<Row> newDataSet =  dropColumns(dataSet);
+        Dataset<Row> newDataSet = dropColumns(dataSet);
         newDataSet = alterColumnNames(newDataSet);
         newDataSet = addCustomColumns(newDataSet);
         Encoder<Stock> encoder = Encoders.bean(Stock.class);
@@ -54,25 +54,25 @@ public class StockDataReaderImpl implements StockDataReader{
 
     private Dataset<Row> dropColumns(Dataset<Row> dataSet) {
         List<String> excludeFields = Arrays.asList("% Deli. Qty to Traded Qty", "Deliverable Quantity", "Spread Close-Open", "Spread High-Low", "Total Turnover (Rs.)", "WAP");
-        Seq<String> cols =  JavaConverters.collectionAsScalaIterableConverter(excludeFields).asScala().toSeq();
+        Seq<String> cols = JavaConverters.collectionAsScalaIterableConverter(excludeFields).asScala().toSeq();
         return dataSet.drop(cols);
     }
 
     private Dataset<Row> alterColumnNames(Dataset<Row> dataSet) {
         return dataSet.withColumnRenamed("Open Price", "openPrice")
-                      .withColumnRenamed("High Price", "highPrice")
-                      .withColumnRenamed("Low Price", "lowPrice")
-                      .withColumnRenamed("Close Price", "closePrice")
-                      .withColumnRenamed("Spread High-Low", "spreadHighLow")
-                      .withColumnRenamed("Spread Close-Open", "spreadCloseOpen")
-                      .withColumnRenamed("No.of Shares", "totalShares")
-                      .withColumnRenamed("No. of Trades", "totalTrades")
-                      .withColumnRenamed("Date", "pricingDate");
+                .withColumnRenamed("High Price", "highPrice")
+                .withColumnRenamed("Low Price", "lowPrice")
+                .withColumnRenamed("Close Price", "closePrice")
+                .withColumnRenamed("Spread High-Low", "spreadHighLow")
+                .withColumnRenamed("Spread Close-Open", "spreadCloseOpen")
+                .withColumnRenamed("No.of Shares", "totalShares")
+                .withColumnRenamed("No. of Trades", "totalTrades")
+                .withColumnRenamed("Date", "pricingDate");
     }
 
     private Dataset<Row> addCustomColumns(Dataset<Row> dataSet) {
-        return  dataSet.withColumn("spreadHighLow", functions.callUDF("spread", dataSet.col("highPrice"), dataSet.col("lowPrice")))
-                       .withColumn("spreadOpenClose", functions.callUDF("spread", dataSet.col("openPrice"), dataSet.col("closePrice")));
+        return dataSet.withColumn("spreadHighLow", functions.callUDF("spread", dataSet.col("highPrice"), dataSet.col("lowPrice")))
+                .withColumn("spreadOpenClose", functions.callUDF("spread", dataSet.col("openPrice"), dataSet.col("closePrice")));
 
     }
 }

@@ -1,6 +1,8 @@
 package com.stock.processor.stockProcessor.models;
 
-import lombok.*;
+import lombok.Getter;
+import lombok.Setter;
+
 import java.io.Serializable;
 
 @Getter

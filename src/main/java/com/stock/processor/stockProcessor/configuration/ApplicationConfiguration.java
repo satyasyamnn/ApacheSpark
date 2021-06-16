@@ -1,10 +1,9 @@
 package com.stock.processor.stockProcessor.configuration;
 
-import lombok.*;
+import lombok.Getter;
+import lombok.Setter;
 import org.springframework.boot.context.properties.ConfigurationProperties;
-import org.springframework.stereotype.Component;
 
-@Component
 @ConfigurationProperties("spark.app")
 @Getter
 @Setter
