@@ -4,11 +4,12 @@ import lombok.Getter;
 import lombok.Setter;
 
 import java.io.Serializable;
+import java.util.Date;
 
 @Getter
 @Setter
 public class Stock implements Serializable {
-    private String pricingDate;
+    private Date pricingDate;
     private String stockName;
     private Double openPrice;
     private Double highPrice;

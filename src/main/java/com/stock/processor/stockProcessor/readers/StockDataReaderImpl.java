@@ -2,6 +2,7 @@ package com.stock.processor.stockProcessor.readers;
 
 import com.stock.processor.stockProcessor.configuration.ApplicationConfiguration;
 import com.stock.processor.stockProcessor.models.Stock;
+import com.stock.processor.stockProcessor.models.StockMapper;
 import org.apache.spark.sql.*;
 import scala.collection.JavaConverters;
 import scala.collection.Seq;
@@ -26,6 +27,7 @@ public class StockDataReaderImpl implements StockDataReader {
     @Override
     public Dataset<Stock> readRawStockData() {
         Dataset<Row> data = readData();
+        System.out.println(data.schema().prettyJson());
         return encodeToStockDataColumns(data);
     }
 
@@ -41,7 +43,7 @@ public class StockDataReaderImpl implements StockDataReader {
         newDataSet = alterColumnNames(newDataSet);
         newDataSet = addCustomColumns(newDataSet);
         Encoder<Stock> encoder = Encoders.bean(Stock.class);
-        return newDataSet.as(encoder);
+        return newDataSet.map(new StockMapper(), encoder);
     }
 
 
