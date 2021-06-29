@@ -3,9 +3,11 @@ package com.sf.fire.analysis.readers;
 import org.apache.spark.sql.Dataset;
 import org.apache.spark.sql.Row;
 import org.apache.spark.sql.SparkSession;
-import org.apache.spark.sql.functions;
-import org.apache.spark.sql.types.*;
 import org.apache.spark.sql.api.java.UDF1;
+import org.apache.spark.sql.functions;
+import org.apache.spark.sql.types.DataTypes;
+import org.apache.spark.sql.types.StructField;
+import org.apache.spark.sql.types.StructType;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -24,17 +26,18 @@ public class FireDataReader {
     public Dataset<Row> loadData() {
         Dataset<Row> data = session.read().options(getOptions()).format("csv").schema(defineSchema()).load("data/inputs/sf-fire-calls.csv");
         data = data.withColumn("Year", functions.callUDF("getYear", data.col("CallDate")))
-                   .withColumn("month", functions.callUDF("getMonth", data.col("CallDate")));
+                .withColumn("month", functions.callUDF("getMonth", data.col("CallDate")))
+                .withColumn("IncidentDate", )
         return data;
     }
 
-    private  void defineUDF() {
+    private void defineUDF() {
         session.udf().register("getYear", (UDF1<String, Integer>) (input) -> {
             String year = input.split("/")[2];
             return Integer.parseInt(year);
         }, DataTypes.IntegerType);
 
-        session.udf().register("getMonth", (UDF1<String, Integer>)(input) -> {
+        session.udf().register("getMonth", (UDF1<String, Integer>) (input) -> {
             String month = input.split("/")[1];
             return Integer.parseInt(month);
         }, DataTypes.IntegerType);
