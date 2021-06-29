@@ -1,6 +1,9 @@
 package com.fire.processor;
 
 public class Constants {
+
+    // link used to download https://firms.modaps.eosdis.nasa.gov/active_fire/#firms-txt
+
     public static final String SOURCE_URL = "https://firms.modaps.eosdis.nasa.gov/data/active_fire/modis-c6.1/csv/";
 
     public static final String HOURS_24 = "24";
