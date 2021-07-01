@@ -8,9 +8,7 @@ import org.apache.spark.sql.Encoders;
 import org.apache.spark.sql.Row;
 import org.apache.spark.sql.SparkSession;
 
-import static org.apache.spark.sql.functions.concat;
-import static org.apache.spark.sql.functions.expr;
-import static org.apache.spark.sql.functions.lit;
+import static org.apache.spark.sql.functions.*;
 
 public class BooksProcessor {
 
@@ -25,5 +23,18 @@ public class BooksProcessor {
         Dataset<Row> data = session.read().format("csv").options(Util.getOptions()).load(INPUT_PATH);
         Dataset<Book> books = data.map(new BookMapper(), Encoders.bean(Book.class));
         return books;
+    }
+
+    public Dataset<Row> getBooksDataWithNewColumns(Dataset<Book> books) {
+        Dataset<Row> booksDf = books.toDF();
+        booksDf = booksDf.withColumn("releaseDataAsString", concat(
+                expr("releaseDate.year + 1950"), lit("-"),
+                expr("releaseDate.month + 1"), lit("-"),
+                expr("releaseDate.date")));
+
+        booksDf = booksDf.withColumn("releaseDateAsDate",
+                to_date(booksDf.col("releaseDataAsString"), "yyyy-MM-dd"))
+                .drop("releaseDataAsString");
+        return booksDf;
     }
 }

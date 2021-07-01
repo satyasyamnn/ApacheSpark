@@ -2,31 +2,33 @@ package com.org;
 
 import com.org.sparklearning.booksProcessor.models.Book;
 import com.org.sparklearning.booksProcessor.processor.BooksProcessor;
+import com.org.sparklearning.restaurantsProcessor.RestaurantsProcessor;
 import org.apache.spark.SparkConf;
 import org.apache.spark.SparkContext;
 import org.apache.spark.sql.Dataset;
 import org.apache.spark.sql.Row;
 import org.apache.spark.sql.SparkSession;
 
-import static org.apache.spark.sql.functions.*;
-import static org.apache.spark.sql.functions.expr;
-
 public class Application {
 
     public static void main(String[] args) {
-        BooksProcessor processor = new BooksProcessor(getSparkSession());
-        Dataset<Book> books =  processor.getBooksData();
-        Dataset<Row> booksDf = books.toDF();
-        booksDf = booksDf.withColumn("releaseDataAsString", concat(
-                            expr("releaseDate.year + 1950"), lit("-"),
-                            expr("releaseDate.month + 1"), lit("-"),
-                            expr("releaseDate.date")));
+        //processBooks();
+        processRestaurants();
+    }
 
-        booksDf = booksDf.withColumn("releaseDateAsDate",
-                to_date(booksDf.col("releaseDataAsString"), "yyyy-MM-dd"))
-                .drop("releaseDataAsString");
+    private static void processBooks() {
+        BooksProcessor processor = new BooksProcessor(getSparkSession());
+        Dataset<Book> books = processor.getBooksData();
+        Dataset<Row> booksDf = processor.getBooksDataWithNewColumns(books);
         booksDf.show();
         booksDf.printSchema();
+    }
+
+    private static void processRestaurants() {
+        RestaurantsProcessor processor = new RestaurantsProcessor(getSparkSession());
+        Dataset<Row> data = processor.processRestaurantsData();
+        data.show(5);
+        data.printSchema();
     }
 
     private static SparkSession getSparkSession() {
