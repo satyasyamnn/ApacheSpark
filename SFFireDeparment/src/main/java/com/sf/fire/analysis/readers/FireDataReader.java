@@ -27,7 +27,6 @@ public class FireDataReader {
         Dataset<Row> data = session.read().options(getOptions()).format("csv").schema(defineSchema()).load("data/inputs/sf-fire-calls.csv");
         data = data.withColumn("Year", functions.callUDF("getYear", data.col("CallDate")))
                 .withColumn("month", functions.callUDF("getMonth", data.col("CallDate")))
-                .withColumn("IncidentDate", )
         return data;
     }
 
