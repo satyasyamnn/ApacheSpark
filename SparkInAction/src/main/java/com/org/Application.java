@@ -26,9 +26,7 @@ public class Application {
 
     private static void processRestaurants() {
         RestaurantsProcessor processor = new RestaurantsProcessor(getSparkSession());
-        Dataset<Row> data = processor.processRestaurantsData();
-        data.show(5);
-        data.printSchema();
+        processor.processRestaurantsData();
     }
 
     private static SparkSession getSparkSession() {
